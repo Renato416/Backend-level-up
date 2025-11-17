@@ -1,12 +1,14 @@
-package com.backendLevelup.Backend.dtos.Producto;
+package com.backendLevelup.Backend.dtos;
 
 import lombok.*;
 
+@Getter
+@Setter
 @ToString
-@AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
+@AllArgsConstructor
 public class CategoriaDTO {
+
     private Long id;
     private String nombre;
 }

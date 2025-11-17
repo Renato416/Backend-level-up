@@ -2,9 +2,8 @@ package com.backendLevelup.Backend.repository;
 
 import com.backendLevelup.Backend.model.Producto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-public interface ProductoRepository extends JpaRepository<Producto,Long> {
-    List<Producto> findByCategoriaNombre(String nombreCategoria);
+@Repository
+public interface ProductoRepository extends JpaRepository<Producto, Long> {
 }

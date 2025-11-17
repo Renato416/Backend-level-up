@@ -1,13 +1,19 @@
 package com.backendLevelup.Backend.repository;
 
 import com.backendLevelup.Backend.model.Usuario;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface UsuarioRepository extends CrudRepository<Usuario,Long> {
-    // Busca un usuario al hacer login
-    Optional<Usuario> findByEmail(String email);
-    // Para verificar si un email ya esta registrado
-    boolean existsByEmail(String email);
+@Repository
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+
+    // Buscar por run
+    boolean existsByRun(String run);
+    Optional<Usuario> findByRun(String run);
+
+    // Buscar por correo
+    boolean existsByCorreoElectronico(String correoElectronico);
+    Optional<Usuario> findByCorreoElectronico(String correoElectronico);
 }
