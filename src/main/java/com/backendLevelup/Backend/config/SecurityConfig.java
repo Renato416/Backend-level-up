@@ -22,10 +22,18 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> {}) // Habilita la configuración de CORS del WebConfig
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/productos/**").permitAll()
-                        .requestMatchers("/api/categorias/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // Rutas públicas de negocio (ACTUALIZADO A V2)
+                        .requestMatchers("/api/v2/productos/**").permitAll()
+                        .requestMatchers("/api/v2/categorias/**").permitAll()
+                        .requestMatchers("/api/v2/auth/**").permitAll()
+
+                        // Rutas OBLIGATORIAS para que funcione Swagger UI
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+
                         .anyRequest().authenticated()
                 );
         return http.build();
