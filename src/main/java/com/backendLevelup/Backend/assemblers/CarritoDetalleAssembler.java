@@ -30,9 +30,10 @@ public class CarritoDetalleAssembler {
         CarritoDetalle detalle = new CarritoDetalle();
         detalle.setId(dto.getId());
         detalle.setCarrito(carrito);
-        detalle.setProducto(producto);
         detalle.setCantidad(dto.getCantidad());
 
         return detalle;
     }
+
+
 }
