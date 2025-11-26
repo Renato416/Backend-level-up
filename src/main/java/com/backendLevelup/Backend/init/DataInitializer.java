@@ -5,6 +5,7 @@ import com.backendLevelup.Backend.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder; // <--- IMPORTANTE: Nuevo import
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -20,39 +21,48 @@ public class DataInitializer {
             ProductoRepository productoRepo,
             CarritoRepository carritoRepo,
             BoletaRepository boletaRepo,
-            BoletaDetalleRepository boletaDetalleRepo
+            BoletaDetalleRepository boletaDetalleRepo,
+            PasswordEncoder passwordEncoder // <--- IMPORTANTE: Inyectamos el codificador aquí
     ) {
         return args -> {
 
+            // NOTA: Si ya tienes datos, esto evitará que se actualicen las contraseñas.
+            // Para que funcione, debes borrar la BD o usar 'create-drop' una vez (ver instrucciones abajo).
             if (usuarioRepo.count() > 0 || productoRepo.count() > 0) {
                 System.out.println("➡ Datos ya existentes. No se vuelven a cargar.");
                 return;
             }
 
-            System.out.println("🔰 Cargando datos iniciales...");
+            System.out.println("🔰 Cargando datos iniciales (Con contraseñas encriptadas)...");
 
             // =====================================================
-            // 1) USUARIOS
+            // 1) USUARIOS (Ahora usamos passwordEncoder.encode)
             // =====================================================
+
             Usuario u1 = new Usuario(null, "Juan Pérez", "Calle 123",
-                    LocalDate.of(1990,5,10), "1234", "1-9",
-                    "admin", "juan@duocuc.cl");
+                    LocalDate.of(1990,5,10),
+                    passwordEncoder.encode("1234"), // <--- Encriptado
+                    "1-9", "admin", "juan@duocuc.cl");
 
             Usuario u2 = new Usuario(null, "María González", "Av. Siempre Viva",
-                    LocalDate.of(1995,2,15), "abcd", "2-7",
-                    "cliente", "maria@gmail.com");
+                    LocalDate.of(1995,2,15),
+                    passwordEncoder.encode("abcd"), // <--- Encriptado
+                    "2-7", "cliente", "maria@gmail.com");
 
             Usuario u3 = new Usuario(null, "Renato (Profesor)", "Dirección X",
-                    LocalDate.of(1987,8,18), "11111111", "3-4",
-                    "admin", "re.rojasc@profesorduoc.cl");
+                    LocalDate.of(1987,8,18),
+                    passwordEncoder.encode("11111111"), // <--- Encriptado
+                    "3-4", "admin", "re.rojasc@profesorduoc.cl");
 
             Usuario u4 = new Usuario(null, "Renato (Duoc)", "Dirección Y",
-                    LocalDate.of(1987,8,18), "11111111", "4-4",
-                    "admin", "re.rojasc@duocuc.cl");
+                    LocalDate.of(1987,8,18),
+                    passwordEncoder.encode("11111111"), // <--- Encriptado
+                    "4-4", "admin", "re.rojasc@duocuc.cl");
 
             Usuario u5 = new Usuario(null, "Renato (Gmail)", "Dirección Z",
-                    LocalDate.of(1987,8,18), "11111111", "5-5",
-                    "cliente", "re.rojasc@gmail.cl");
+                    LocalDate.of(1987,8,18),
+                    passwordEncoder.encode("11111111"), // <--- Encriptado
+                    "5-5", "cliente", "re.rojasc@gmail.cl");
 
             usuarioRepo.saveAll(List.of(u1, u2, u3, u4, u5));
 
@@ -95,7 +105,7 @@ public class DataInitializer {
             carritoRepo.save(new Carrito(null, u5, List.of()));
 
             // =====================================================
-            // 5) Crear una boleta inicial (como tu data.ts)
+            // 5) Crear una boleta inicial
             // =====================================================
             Boleta boleta = new Boleta(
                     null,
