@@ -5,9 +5,9 @@ import lombok.*;
 
 @Entity
 @Table(name = "carrito_detalle")
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter @Setter
 public class CarritoDetalle {
 
     @Id

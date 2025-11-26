@@ -15,6 +15,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * Filtro JWT que valida el token en cada request.
+ * Ignora las rutas de login y registro.
+ */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -23,6 +27,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public JwtAuthenticationFilter(JwtService jwtService, MyUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        // Ignoramos login y registro
+        return path.startsWith("/api/v2/auth/login") || path.startsWith("/api/v2/auth/registro");
     }
 
     @Override
@@ -35,17 +46,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = null;
         String username = null;
 
+        // Revisamos si viene un Bearer token
         if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
             try {
                 username = jwtService.extractUsername(jwt);
-            } catch (Exception e) { }
+            } catch (Exception e) {
+                // Token inválido, lo ignoramos y dejamos que la ruta sea bloqueada por Security
+            }
         }
 
+        // Si encontramos un username y no hay autenticación previa
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
+            // Validamos que el token sea válido
             if (jwtService.isTokenValid(jwt, userDetails)) {
 
                 UsernamePasswordAuthenticationToken authToken =
@@ -57,10 +73,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+                // Seteamos la autenticación en el contexto
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
+        // Continuamos con la cadena de filtros
         filterChain.doFilter(request, response);
     }
 }

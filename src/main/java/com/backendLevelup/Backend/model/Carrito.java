@@ -7,9 +7,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "carrito")
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter @Setter
 public class Carrito {
 
     @Id
@@ -17,9 +17,10 @@ public class Carrito {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CarritoDetalle> detalles = new ArrayList<>();
 }
+

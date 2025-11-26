@@ -3,6 +3,7 @@ package com.backendLevelup.Backend.config;
 import com.backendLevelup.Backend.security.JwtAuthenticationFilter;
 import com.backendLevelup.Backend.security.JwtService;
 import com.backendLevelup.Backend.service.MyUserDetailsService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -35,10 +36,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtService, userDetailsService);
+        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtService, userDetailsService) {
+            @Override
+            protected boolean shouldNotFilter(HttpServletRequest request) {
+                String path = request.getRequestURI();
+                // Ignora las rutas de login y registro
+                return path.startsWith("/api/v2/auth/login") || path.startsWith("/api/v2/auth/registro");
+            }
+        };
 
         http
-                // 1. AQUI AGREGAMOS LA CONFIGURACIÓN DE CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -46,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v2/auth/**",
                                 "/v3/api-docs/**",
+                                "/api/v2/productos/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
@@ -56,12 +64,9 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 2. DEFINIMOS EL BEAN QUE CONTROLA QUIÉN PUEDE ENTRAR
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // Aceptamos orígenes comunes de desarrollo (Vite suele usar 5173, 5174, etc.)
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
                 "http://localhost:5174",
@@ -69,7 +74,6 @@ public class SecurityConfig {
                 "http://localhost:5176",
                 "http://localhost:5177"
         ));
-
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
