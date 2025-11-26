@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/v2/auth") // Actualizado a V2 y 'auth'
 @Tag(name = "Autenticación", description = "Gestión de usuarios y acceso")

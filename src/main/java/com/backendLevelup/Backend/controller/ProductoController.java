@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/v2/productos") // Actualizado a V2
 @Tag(name = "Productos", description = "Operaciones CRUD para el catálogo de productos")
