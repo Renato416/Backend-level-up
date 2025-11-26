@@ -17,4 +17,7 @@ public class UsuarioDTO {
     private String run;
     private String rol;
     private String correoElectronico;
+
+    // El campo para llevar la llave de acceso
+    private String token;
 }
