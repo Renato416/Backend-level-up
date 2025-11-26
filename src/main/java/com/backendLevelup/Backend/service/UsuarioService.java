@@ -13,4 +13,7 @@ public interface UsuarioService {
 
     // AGREGAR ESTO:
     List<UsuarioDTO> listarUsuarios();
+
+    UsuarioDTO obtenerPorId(Long id);
+    UsuarioDTO actualizarUsuario(Long id, RegistroUsuarioDTO dto);
 }

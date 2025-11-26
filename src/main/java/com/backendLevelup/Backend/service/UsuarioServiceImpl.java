@@ -4,7 +4,7 @@ import com.backendLevelup.Backend.assemblers.UsuarioAssembler;
 import com.backendLevelup.Backend.dtos.LoginDTO;
 import com.backendLevelup.Backend.dtos.RegistroUsuarioDTO;
 import com.backendLevelup.Backend.dtos.UsuarioDTO;
-import com.backendLevelup.Backend.exceptions.ResourceNotFoundException;
+import com.backendLevelup.Backend.exceptions.ResourceNotFoundException; // Asegúrate de tener esta excepción creada
 import com.backendLevelup.Backend.exceptions.UsuarioValidationException;
 import com.backendLevelup.Backend.model.Usuario;
 import com.backendLevelup.Backend.repository.UsuarioRepository;
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.List; // <--- AGREGADO
-import java.util.stream.Collectors; // <--- AGREGADO
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -96,5 +96,40 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .stream()
                 .map(usuarioAssembler::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    // -------------------------------------------------------------------
+    // NUEVO: IMPLEMENTACIÓN DE OBTENER POR ID
+    // -------------------------------------------------------------------
+    @Override
+    public UsuarioDTO obtenerPorId(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
+        return usuarioAssembler.toDTO(usuario);
+    }
+
+    // -------------------------------------------------------------------
+    // NUEVO: IMPLEMENTACIÓN DE ACTUALIZAR
+    // -------------------------------------------------------------------
+    @Override
+    public UsuarioDTO actualizarUsuario(Long id, RegistroUsuarioDTO dto) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
+
+        // Actualizamos los campos básicos
+        usuario.setNombreUsuario(dto.getNombreUsuario());
+        usuario.setCorreoElectronico(dto.getCorreoElectronico());
+        usuario.setDireccion(dto.getDireccion());
+        usuario.setRun(dto.getRun());
+        usuario.setFechaNacimiento(dto.getFechaNacimiento());
+
+        // Lógica inteligente para la contraseña:
+        // Solo la actualizamos si el usuario escribió una nueva. Si viene vacía, mantenemos la anterior.
+        if (dto.getContraseña() != null && !dto.getContraseña().isEmpty()) {
+            usuario.setContraseña(passwordEncoder.encode(dto.getContraseña()));
+        }
+
+        Usuario actualizado = usuarioRepository.save(usuario);
+        return usuarioAssembler.toDTO(actualizado);
     }
 }
