@@ -3,13 +3,14 @@ package com.backendLevelup.Backend.service;
 import com.backendLevelup.Backend.dtos.LoginDTO;
 import com.backendLevelup.Backend.dtos.RegistroUsuarioDTO;
 import com.backendLevelup.Backend.dtos.UsuarioDTO;
-import org.springframework.stereotype.Service;
+import java.util.List; // <--- AGREGAR IMPORT
 
-@Service
 public interface UsuarioService {
 
     UsuarioDTO createUsuario(RegistroUsuarioDTO dto);
 
     UsuarioDTO login(LoginDTO dto);
 
+    // AGREGAR ESTO:
+    List<UsuarioDTO> listarUsuarios();
 }

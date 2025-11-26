@@ -8,13 +8,15 @@ import com.backendLevelup.Backend.exceptions.ResourceNotFoundException;
 import com.backendLevelup.Backend.exceptions.UsuarioValidationException;
 import com.backendLevelup.Backend.model.Usuario;
 import com.backendLevelup.Backend.repository.UsuarioRepository;
-import com.backendLevelup.Backend.security.JwtService; // 🔹 IMPORTANTE
-import org.springframework.security.core.userdetails.UserDetails; // 🔹 IMPORTANTE
+import com.backendLevelup.Backend.security.JwtService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List; // <--- AGREGADO
+import java.util.stream.Collectors; // <--- AGREGADO
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -22,7 +24,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioAssembler usuarioAssembler;
-    // inyecciones necesarias para el Token
     private final JwtService jwtService;
     private final MyUserDetailsService userDetailsService;
 
@@ -64,7 +65,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         Usuario guardado = usuarioRepository.save(usuario);
 
-        // 🔹 Opcional: Podrías generar token aquí también si quieres auto-login al registrar
         return usuarioAssembler.toDTO(guardado);
     }
 
@@ -79,17 +79,22 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new ResourceNotFoundException("Contraseña incorrecta");
         }
 
-        // 3. 🔹 GENERAR EL TOKEN
-        // Cargamos los detalles de seguridad (roles, permisos)
+        // 3. Generar Token
         UserDetails userDetails = userDetailsService.loadUserByUsername(usuario.getCorreoElectronico());
-
-        // Creamos el string del token
         String jwtToken = jwtService.generateToken(userDetails);
 
-        // 4. Convertir a DTO y agregar el token
+        // 4. Convertir a DTO y agregar token
         UsuarioDTO response = usuarioAssembler.toDTO(usuario);
-        response.setToken(jwtToken); // <--- ¡Aquí entregamos la llave!
+        response.setToken(jwtToken);
 
         return response;
+    }
+
+    @Override
+    public List<UsuarioDTO> listarUsuarios() {
+        return usuarioRepository.findAll()
+                .stream()
+                .map(usuarioAssembler::toDTO)
+                .collect(Collectors.toList());
     }
 }
