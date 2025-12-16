@@ -4,7 +4,7 @@ import com.backendLevelup.Backend.assemblers.UsuarioAssembler;
 import com.backendLevelup.Backend.dtos.LoginDTO;
 import com.backendLevelup.Backend.dtos.RegistroUsuarioDTO;
 import com.backendLevelup.Backend.dtos.UsuarioDTO;
-import com.backendLevelup.Backend.exceptions.ResourceNotFoundException; // Asegúrate de tener esta excepción creada
+import com.backendLevelup.Backend.exceptions.ResourceNotFoundException;
 import com.backendLevelup.Backend.exceptions.UsuarioValidationException;
 import com.backendLevelup.Backend.model.Usuario;
 import com.backendLevelup.Backend.repository.UsuarioRepository;
@@ -59,8 +59,15 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setDireccion(dto.getDireccion());
         usuario.setFechaNacimiento(dto.getFechaNacimiento());
         usuario.setContraseña(contraseñaEncriptada);
-        usuario.setRun(dto.getRun());
-        usuario.setRol("ROLE_USER");
+
+        // CORRECCIÓN: Manejo de RUN vacío para evitar error de duplicidad
+        if (dto.getRun() != null && !dto.getRun().trim().isEmpty()) {
+            usuario.setRun(dto.getRun());
+        } else {
+            usuario.setRun(null); // Se guarda como NULL si está vacío
+        }
+
+        usuario.setRol("cliente"); // Ajustado a "cliente" para coincidir con tu switch del frontend
         usuario.setCorreoElectronico(dto.getCorreoElectronico());
 
         Usuario guardado = usuarioRepository.save(usuario);
@@ -72,11 +79,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioDTO login(LoginDTO dto) {
         // 1. Buscar usuario en BD
         Usuario usuario = usuarioRepository.findByCorreoElectronico(dto.getCorreoElectronico())
-                .orElseThrow(() -> new UsuarioValidationException("Usuario no encontrado"));
+                .orElseThrow(() -> new UsuarioValidationException("Correo o contraseña incorrectos"));
 
         // 2. Verificar contraseña
         if (!passwordEncoder.matches(dto.getContraseña(), usuario.getContraseña())) {
-            throw new ResourceNotFoundException("Contraseña incorrecta");
+            throw new ResourceNotFoundException("Correo o contraseña incorrectos");
         }
 
         // 3. Generar Token
@@ -98,9 +105,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .collect(Collectors.toList());
     }
 
-    // -------------------------------------------------------------------
-    // NUEVO: IMPLEMENTACIÓN DE OBTENER POR ID
-    // -------------------------------------------------------------------
     @Override
     public UsuarioDTO obtenerPorId(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
@@ -108,23 +112,24 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioAssembler.toDTO(usuario);
     }
 
-    // -------------------------------------------------------------------
-    // NUEVO: IMPLEMENTACIÓN DE ACTUALIZAR
-    // -------------------------------------------------------------------
     @Override
     public UsuarioDTO actualizarUsuario(Long id, RegistroUsuarioDTO dto) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
 
-        // Actualizamos los campos básicos
         usuario.setNombreUsuario(dto.getNombreUsuario());
         usuario.setCorreoElectronico(dto.getCorreoElectronico());
         usuario.setDireccion(dto.getDireccion());
-        usuario.setRun(dto.getRun());
+
+        // CORRECCIÓN: Aplicamos la misma lógica del RUN al actualizar
+        if (dto.getRun() != null && !dto.getRun().trim().isEmpty()) {
+            usuario.setRun(dto.getRun());
+        } else {
+            usuario.setRun(null);
+        }
+
         usuario.setFechaNacimiento(dto.getFechaNacimiento());
 
-        // Lógica inteligente para la contraseña:
-        // Solo la actualizamos si el usuario escribió una nueva. Si viene vacía, mantenemos la anterior.
         if (dto.getContraseña() != null && !dto.getContraseña().isEmpty()) {
             usuario.setContraseña(passwordEncoder.encode(dto.getContraseña()));
         }
