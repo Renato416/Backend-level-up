@@ -24,14 +24,30 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
+
+        long expiration;
+
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (isAdmin) {
+            // 3 meses ≈ 90 días
+            expiration = 1000L * 60 * 60 * 24 * 90;
+        } else {
+            // Cliente: token "indefinido"
+            // 10 años (prácticamente infinito en JWT)
+            expiration = 1000L * 60 * 60 * 24 * 365 * 10;
+        }
+
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
-                .addClaims(Map.of("roles", userDetails.getAuthorities().toString()))
+                .claim("role", userDetails.getAuthorities())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
