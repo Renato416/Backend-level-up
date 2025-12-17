@@ -55,9 +55,9 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
-                        // ----------------------------
+                        // ==================================================
                         // RUTAS PÚBLICAS
-                        // ----------------------------
+                        // ==================================================
                         .requestMatchers(
                                 "/api/v2/auth/login",
                                 "/api/v2/auth/registro",
@@ -66,15 +66,35 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // ----------------------------
-                        // PRODUCTOS PÚBLICOS (SOLO GET)
-                        // ----------------------------
+                        // Productos públicos (solo lectura)
                         .requestMatchers(HttpMethod.GET, "/api/v2/productos/**")
                         .permitAll()
 
-                        // ----------------------------
-                        // PRODUCTOS (ESCRITURA SOLO ADMIN)
-                        // ----------------------------
+                        // ==================================================
+                        // BOLETAS - CLIENTE Y ADMIN
+                        // ==================================================
+
+                        // Crear boleta
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v2/boletas/usuario/**"
+                        ).hasAnyRole("CLIENTE", "ADMIN")
+
+                        // Agregar detalle a boleta
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v2/boletas/*/producto/*"
+                        ).hasAnyRole("CLIENTE", "ADMIN")
+
+                        // Ver boletas
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v2/boletas/**"
+                        ).hasAnyRole("CLIENTE", "ADMIN")
+
+                        // ==================================================
+                        // PRODUCTOS - SOLO ADMIN (ESCRITURA)
+                        // ==================================================
                         .requestMatchers(HttpMethod.POST, "/api/v2/productos/**")
                         .hasRole("ADMIN")
 
@@ -84,23 +104,25 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v2/productos/**")
                         .hasRole("ADMIN")
 
-                        // ----------------------------
-                        // CLIENTE Y ADMIN
-                        // ----------------------------
-                        .requestMatchers(
-                                "/api/v2/carrito/**",
-                                "/api/v2/boletas/**"
-                        ).hasAnyRole("CLIENTE", "ADMIN")
-
-                        // ----------------------------
-                        // ADMIN
-                        // ----------------------------
+                        // ==================================================
+                        // ADMIN TOTAL
+                        // ==================================================
                         .requestMatchers("/api/v2/auth/**")
                         .hasRole("ADMIN")
 
-                        // ----------------------------
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/v2/boletas/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/v2/boletas/**"
+                        ).hasRole("ADMIN")
+
+                        // ==================================================
                         // CUALQUIER OTRA RUTA
-                        // ----------------------------
+                        // ==================================================
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -108,9 +130,9 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ----------------------------
+    // ==================================================
     // CORS
-    // ----------------------------
+    // ==================================================
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -135,17 +157,17 @@ public class SecurityConfig {
         return source;
     }
 
-    // ----------------------------
+    // ==================================================
     // PASSWORD ENCODER
-    // ----------------------------
+    // ==================================================
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ----------------------------
+    // ==================================================
     // AUTH MANAGER
-    // ----------------------------
+    // ==================================================
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
