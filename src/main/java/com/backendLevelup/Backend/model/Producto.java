@@ -5,29 +5,24 @@ import lombok.*;
 
 @Entity
 @Table(name = "productos")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter @Setter
 public class Producto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String nombre;
+    private String name;
 
-    @Column(nullable = false)
-    private Long precio;
+    private Long price;
 
-    @Column(name = "cantidad", nullable = false)
-    private Long cantidad;
+    @Column(name = "image_name")
+    private String imageName;
 
-    @ManyToOne
-    @JoinColumn(name = "categoria_id", nullable = false)
-    private Categoria categoria;
+    private String description;
 
-    @Column
-    private String imagenUrl;
-
+    private Double rating;
 }

@@ -14,7 +14,7 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("Api Restfull - LevelUpBackend")
                         .description("Esta es la api dedicada a LevelUpGamer")
-                        .version("1.0.0")
+                        .version("1.2.0")
                 );
     }
 }

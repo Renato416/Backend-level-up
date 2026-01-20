@@ -1,6 +1,7 @@
 package com.backendLevelup.Backend.dtos;
 
 import lombok.*;
+
 import java.time.LocalDate;
 
 @Getter
@@ -9,10 +10,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class RegistroUsuarioDTO {
 
-    private String nombreUsuario;
-    private String direccion;
-    private LocalDate fechaNacimiento;
-    private String contraseña;
-    private String run;
-    private String correoElectronico;
+    private String username;
+    private String email;
+    private String password;
+    private String address;
+    private String phone;
+    private LocalDate birthDate;
 }

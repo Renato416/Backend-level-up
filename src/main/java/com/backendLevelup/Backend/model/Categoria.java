@@ -20,6 +20,5 @@ public class Categoria {
     @Column(nullable = false, unique = true)
     private String nombre;
 
-    @OneToMany(mappedBy = "categoria")
-    private List<Producto> productos = new ArrayList<>();
+
 }

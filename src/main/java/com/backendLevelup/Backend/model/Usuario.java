@@ -2,37 +2,34 @@ package com.backendLevelup.Backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "usuarios")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter @Setter
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nombre_usuario", nullable = false)
-    private String nombreUsuario;
+    @Column(nullable = false, unique = true)
+    private String username;
 
-    @Column(name = "dirección")
-    private String direccion;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-    @Column(name = "fecha_nacimiento")
-    private LocalDate fechaNacimiento;
+    @Column(nullable = false)
+    private String password;
 
-    @Column(name = "contraseña", nullable = false)
-    private String contraseña;
+    private String address;
 
-    @Column(name = "run", unique = true)
-    private String run;
+    private String phone;
 
-    @Column(name = "rol", nullable = false)
-    private String rol;
-
-    @Column(name = "correo_electronico", nullable = false)
-    private String correoElectronico;
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 }
